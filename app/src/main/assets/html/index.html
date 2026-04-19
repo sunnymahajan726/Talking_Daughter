@@ -3,272 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#ff9a9e">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>Talking Daughter</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
   html, body {
-    height: 100%;
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(160deg, #ffd1dc 0%, #ffe8a3 50%, #c1f0ff 100%);
-    overscroll-behavior: none;
-    touch-action: manipulation;
+    height:100%; overflow:hidden;
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: radial-gradient(ellipse at top, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%);
+    overscroll-behavior:none;
+    touch-action:manipulation;
   }
-  body {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  body { display:flex; flex-direction:column; position:relative; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
 
-  .bubble {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    pointer-events: none;
-    animation: drift 8s infinite ease-in-out;
-  }
-  @keyframes drift {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(20px, -30px); }
-  }
+  .sparkle { position:absolute; font-size:18px; pointer-events:none; animation:twinkle 3s infinite; opacity:0.6; }
+  @keyframes twinkle { 0%,100%{opacity:0.3;transform:scale(0.8);} 50%{opacity:0.9;transform:scale(1.2);} }
 
-  .container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    position: relative;
-    z-index: 2;
-  }
+  .container { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:16px; position:relative; z-index:2; }
 
-  .top-bar {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #d63384;
-    text-shadow: 2px 2px 0 rgba(255,255,255,0.7);
-  }
-  .icon-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.85);
-    border: none;
-    font-size: 20px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    cursor: pointer;
-  }
-  .icon-btn:active { transform: scale(0.92); }
+  .top-bar { width:100%; display:flex; justify-content:space-between; align-items:center; }
+  .title { font-size:22px; font-weight:800; color:#d63384; text-shadow:2px 2px 0 rgba(255,255,255,0.8); }
+  .icon-btn { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.9); border:none; font-size:20px; box-shadow:0 3px 10px rgba(0,0,0,0.15); cursor:pointer; }
+  .icon-btn:active { transform:scale(0.92); }
+
+  .stage { position:relative; flex:1; display:flex; align-items:center; justify-content:center; perspective:1200px; width:100%; }
 
   .character-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
+    position:relative;
+    width:78vmin; height:78vmin;
+    max-width:440px; max-height:440px;
+    transform-style:preserve-3d;
+    animation:idleBob 4s infinite ease-in-out;
   }
-  .character {
-    width: 72vmin;
-    height: 72vmin;
-    max-width: 420px;
-    max-height: 420px;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.2), inset 0 0 0 10px rgba(255,255,255,0.6);
-    border: 10px solid white;
-    transition: transform 0.08s;
-    background: #fff;
-  }
-  .character.bounce { animation: bounce 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
-  .character.squish { animation: squish 0.4s ease-out; }
-  .character.shake  { animation: shake 0.5s; }
-  .character.spin   { animation: spin 0.6s ease-in-out; }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    30% { transform: translateY(-40px) scale(1.08, 0.95); }
-    60% { transform: translateY(0) scale(0.95, 1.05); }
-  }
-  @keyframes squish {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15, 0.88); }
-  }
-  @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    20% { transform: rotate(-8deg); }
-    40% { transform: rotate(8deg); }
-    60% { transform: rotate(-6deg); }
-    80% { transform: rotate(6deg); }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(0.9); }
-    100% { transform: rotate(360deg) scale(1); }
+  @keyframes idleBob {
+    0%,100% { transform:rotateY(-3deg) rotateX(2deg) translateY(0); }
+    50% { transform:rotateY(3deg) rotateX(-1deg) translateY(-8px); }
   }
 
-  .controls {
-    display: flex;
-    gap: 14px;
-    padding: 18px 10px;
-    flex-wrap: wrap;
-    justify-content: center;
+  #faceCanvas {
+    width:100%; height:100%;
+    border-radius:50%;
+    box-shadow:0 15px 50px rgba(0,0,0,0.25), inset 0 0 0 10px rgba(255,255,255,0.7);
+    border:10px solid white;
+    background:#fff;
+    cursor:pointer;
+    display:block;
   }
-  .btn {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    border: none;
-    background: white;
-    font-size: 26px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-  .btn:active { transform: scale(0.88); }
-  .btn.recording {
-    background: #ff4757;
-    color: white;
-    animation: recordPulse 1s infinite;
-  }
-  @keyframes recordPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,71,87,0.7); }
-    50% { box-shadow: 0 0 0 15px rgba(255,71,87,0); }
-  }
-  .btn-label {
-    font-size: 10px;
-    margin-top: 4px;
-    color: #555;
-    text-align: center;
-  }
-  .btn-col { display: flex; flex-direction: column; align-items: center; }
 
-  .floating-emoji {
-    position: fixed;
-    font-size: 46px;
-    pointer-events: none;
-    z-index: 10;
-    animation: floatUp 1.6s forwards ease-out;
-  }
-  @keyframes floatUp {
-    0% { transform: translateY(0) scale(0.4) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(-250px) scale(1.6) rotate(20deg); opacity: 0; }
-  }
+  .character-wrap.bounce   { animation:bounce 0.6s cubic-bezier(0.5, -0.5, 0.3, 1.5); }
+  .character-wrap.squish   { animation:squish 0.5s ease-out; }
+  .character-wrap.shake    { animation:shake 0.6s; }
+  .character-wrap.jump     { animation:jump 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.3); }
+  .character-wrap.sleepy   { animation:sleepy 2s ease-in-out; }
+
+  @keyframes bounce { 0%,100%{transform:translateY(0) scale(1,1);} 30%{transform:translateY(-60px) scale(1.1,0.9);} 60%{transform:translateY(0) scale(0.92,1.08);} 80%{transform:translateY(-10px);} }
+  @keyframes squish { 0%,100%{transform:scale(1,1);} 50%{transform:scale(1.2,0.85);} }
+  @keyframes shake { 0%,100%{transform:rotate(0);} 20%{transform:rotate(-10deg) translateX(-5px);} 40%{transform:rotate(10deg) translateX(5px);} 60%{transform:rotate(-8deg) translateX(-3px);} 80%{transform:rotate(8deg) translateX(3px);} }
+  @keyframes jump { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-80px) rotate(-5deg);} }
+  @keyframes sleepy { 0%,100%{transform:rotate(0) translateY(0);} 50%{transform:rotate(8deg) translateY(15px);} }
+
+  .controls { display:flex; gap:10px; padding:14px 6px; flex-wrap:wrap; justify-content:center; max-width:100%; }
+  .btn { width:58px; height:58px; border-radius:50%; border:none; background:white; font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,0.18); cursor:pointer; transition:all 0.15s; }
+  .btn:active { transform:scale(0.86); }
+  .btn.recording { background:#ff4757; color:white; animation:recordPulse 1s infinite; }
+  @keyframes recordPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,71,87,0.7);} 50%{box-shadow:0 0 0 18px rgba(255,71,87,0);} }
+  .btn-label { font-size:10px; margin-top:3px; color:#444; text-align:center; font-weight:600; }
+  .btn-col { display:flex; flex-direction:column; align-items:center; }
+
+  .floating-emoji { position:fixed; font-size:44px; pointer-events:none; z-index:10; animation:floatUp 1.8s forwards ease-out; }
+  @keyframes floatUp { 0%{transform:translateY(0) scale(0.4) rotate(0);opacity:1;} 100%{transform:translateY(-280px) scale(1.7) rotate(25deg);opacity:0;} }
 
   .modal {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    text-align: center;
-    z-index: 100;
+    position:fixed; inset:0;
+    background:linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:40px 30px; text-align:center; z-index:100;
   }
-  .modal h1 {
-    font-size: 32px;
-    color: white;
-    margin-bottom: 12px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  }
-  .modal p {
-    color: white;
-    margin-bottom: 30px;
-    font-size: 16px;
-    max-width: 300px;
-    line-height: 1.4;
-  }
-  .big-btn {
-    background: white;
-    color: #d63384;
-    padding: 16px 44px;
-    border-radius: 40px;
-    border: none;
-    font-size: 18px;
-    font-weight: 700;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    cursor: pointer;
-  }
-  .big-btn:active { transform: scale(0.95); }
-  .hidden { display: none !important; }
+  .modal h1 { font-size:28px; color:white; margin-bottom:12px; text-shadow:2px 2px 4px rgba(0,0,0,0.2); }
+  .modal p { color:white; margin-bottom:24px; font-size:15px; max-width:320px; line-height:1.4; }
+  .big-btn { background:white; color:#d63384; padding:14px 36px; border-radius:40px; border:none; font-size:17px; font-weight:700; box-shadow:0 6px 20px rgba(0,0,0,0.2); cursor:pointer; }
+  .big-btn:active { transform:scale(0.95); }
+  .hidden { display:none !important; }
 
-  .status-text {
-    color: #888;
-    font-size: 13px;
-    height: 20px;
-    margin-top: 8px;
-  }
+  .status-text { color:#fff; font-size:13px; height:20px; margin-top:6px; text-shadow:1px 1px 2px rgba(0,0,0,0.3); font-weight:600; }
 
-  .talking-glow {
-    box-shadow: 0 0 0 0 rgba(255,105,180,0.7), 0 15px 50px rgba(0,0,0,0.2);
-    animation: glow 0.4s infinite alternate;
+  .loading-spinner {
+    width:50px; height:50px; border:5px solid rgba(255,255,255,0.3); border-top-color:white;
+    border-radius:50%; animation:spin 1s linear infinite; margin-bottom:16px;
   }
-  @keyframes glow {
-    from { box-shadow: 0 0 0 5px rgba(255,105,180,0.4), 0 15px 50px rgba(0,0,0,0.2); }
-    to   { box-shadow: 0 0 0 20px rgba(255,105,180,0), 0 15px 50px rgba(0,0,0,0.2); }
-  }
+  @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<div class="bubble" style="width:80px;height:80px;top:15%;left:8%;animation-delay:0s"></div>
-<div class="bubble" style="width:50px;height:50px;top:70%;left:85%;animation-delay:2s"></div>
-<div class="bubble" style="width:100px;height:100px;top:80%;left:10%;animation-delay:4s"></div>
-<div class="bubble" style="width:60px;height:60px;top:20%;right:10%;animation-delay:1s"></div>
+<div class="sparkle" style="top:10%;left:10%">✨</div>
+<div class="sparkle" style="top:20%;right:15%;animation-delay:0.5s">⭐</div>
+<div class="sparkle" style="top:70%;left:8%;animation-delay:1s">✨</div>
+<div class="sparkle" style="top:80%;right:12%;animation-delay:1.5s">💫</div>
+<div class="sparkle" style="top:35%;left:5%;animation-delay:2s">⭐</div>
+<div class="sparkle" style="top:50%;right:6%;animation-delay:2.5s">✨</div>
 
 <div class="container" id="app">
   <div class="top-bar">
     <div class="title">✨ Talking Daughter</div>
-    <button class="icon-btn" onclick="showUpload()" aria-label="Change photo">📷</button>
+    <button class="icon-btn" onclick="showUpload()">📷</button>
   </div>
-
-  <div class="character-wrap">
-    <img id="character" class="character" alt="Tap me!" />
+  <div class="stage">
+    <div class="character-wrap" id="characterWrap">
+      <canvas id="faceCanvas"></canvas>
+    </div>
   </div>
-
   <div>
     <div class="controls">
-      <div class="btn-col">
-        <button class="btn" id="recordBtn" onclick="toggleRecord()" aria-label="Record">🎤</button>
-        <div class="btn-label">Talk</div>
-      </div>
-      <div class="btn-col">
-        <button class="btn" onclick="pet()" aria-label="Pet">🤗</button>
-        <div class="btn-label">Hug</div>
-      </div>
-      <div class="btn-col">
-        <button class="btn" onclick="tickle()" aria-label="Tickle">🪶</button>
-        <div class="btn-label">Tickle</div>
-      </div>
-      <div class="btn-col">
-        <button class="btn" onclick="spinMe()" aria-label="Spin">🌀</button>
-        <div class="btn-label">Spin</div>
-      </div>
-      <div class="btn-col">
-        <button class="btn" onclick="dance()" aria-label="Dance">💃</button>
-        <div class="btn-label">Dance</div>
-      </div>
+      <div class="btn-col"><button class="btn" id="recordBtn" onclick="toggleRecord()">🎤</button><div class="btn-label">Talk</div></div>
+      <div class="btn-col"><button class="btn" onclick="pet()">🤗</button><div class="btn-label">Hug</div></div>
+      <div class="btn-col"><button class="btn" onclick="tickle()">🪶</button><div class="btn-label">Tickle</div></div>
+      <div class="btn-col"><button class="btn" onclick="happyJump()">😄</button><div class="btn-label">Happy</div></div>
+      <div class="btn-col"><button class="btn" onclick="dance()">💃</button><div class="btn-label">Dance</div></div>
+      <div class="btn-col"><button class="btn" onclick="sleepy()">😴</button><div class="btn-label">Sleep</div></div>
     </div>
     <div class="status-text" id="status"></div>
   </div>
@@ -276,236 +129,628 @@
 
 <div class="modal" id="uploadScreen">
   <h1>👶 Talking Daughter</h1>
-  <p>Upload a photo of your daughter and she becomes the star of the app!</p>
+  <p>Upload a clear front-facing photo. The app detects face features so she can actually smile and speak.</p>
   <button class="big-btn" onclick="document.getElementById('fileInput').click()">📸 Choose Photo</button>
   <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
   <p style="margin-top:20px;font-size:12px;opacity:0.8">Photo stays on your device.</p>
 </div>
 
+<div class="modal hidden" id="processingScreen">
+  <div class="loading-spinner"></div>
+  <h1 id="processingTitle">Loading face detector…</h1>
+  <p id="processingSub">First time only: downloads a small model (~3 MB). Requires internet on first run.</p>
+</div>
+
+<div class="modal hidden" id="fallbackScreen">
+  <h1>Couldn't detect a face</h1>
+  <p>Try a photo where her face is clearly visible, front-facing, with good lighting and eyes open.</p>
+  <button class="big-btn" onclick="retryUpload()">Try Another Photo</button>
+</div>
+
 <script>
-  // Register service worker for offline support (required for PWA-to-APK)
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed:', err));
-    });
-  }
+// =====================================================
+// Talking Daughter v3 — MediaPipe FaceMesh real warping
+// =====================================================
 
-  const character = document.getElementById('character');
-  const statusEl = document.getElementById('status');
-  let mediaRecorder = null;
-  let audioChunks = [];
-  let isRecording = false;
-  let audioCtx = null;
+const STORAGE_PHOTO = 'td_photo_v3';
+const STORAGE_LANDMARKS = 'td_landmarks_v3';
 
-  // Use localStorage for persistence (works inside TWA/APK)
-  const STORAGE_KEY = 'talkingDaughterPhoto';
+let photoImg = null;
+let landmarks = null;
+let deformedLandmarks = null;
+let triangleIndices = null;
+let isRecording = false, mediaRecorder = null, audioChunks = [];
+let audioCtx = null;
+let blinkTimer = null, lipSyncRaf = null, animRaf = null;
+let expressionAmt = { blink:0, smile:0, mouthOpen:0 };
 
-  function loadPhoto() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        character.src = saved;
+const faceCanvas = document.getElementById('faceCanvas');
+const ctx = faceCanvas.getContext('2d');
+const statusEl = document.getElementById('status');
+const characterWrap = document.getElementById('characterWrap');
+
+// MediaPipe face tesselation triangle indices (subset)
+const FACEMESH_TRIANGLES = [
+  127,34,139, 11,0,37, 232,231,120, 72,37,39, 128,121,47, 232,121,128,
+  104,69,67, 175,171,148, 118,50,101, 73,39,40, 9,151,108, 48,115,131,
+  194,204,211, 74,40,185, 80,42,183, 40,92,186, 230,229,118, 202,212,214,
+  83,18,17, 76,61,146, 160,29,30, 56,157,173, 106,204,194, 135,214,192,
+  203,165,98, 21,71,68, 51,45,4, 144,24,23, 77,146,91, 205,50,187,
+  201,200,18, 91,106,182, 90,91,181, 85,84,17, 206,203,36, 148,171,140,
+  92,40,39, 193,189,244, 159,158,28, 247,246,161, 54,68,104,
+  193,168,8, 117,228,31, 189,193,55, 98,97,99, 126,47,100, 166,79,218,
+  155,154,26, 209,49,131, 135,136,150, 47,126,217, 223,52,53, 45,51,134,
+  211,170,140, 67,69,108, 43,106,91, 230,119,120, 226,130,247, 63,53,52,
+  46,70,156, 78,62,96, 46,53,63, 143,34,227, 123,117,111,
+  44,125,19, 236,134,51, 216,206,205, 154,153,22, 39,37,167, 200,201,208,
+  36,142,100, 57,212,202, 20,60,99, 28,158,157, 35,226,113, 160,159,27,
+  204,202,210, 113,225,46, 43,202,204, 62,76,77, 137,123,116, 41,38,72,
+  203,129,142, 64,98,240, 49,102,64, 41,73,74, 212,216,207, 42,74,184,
+  169,170,211, 170,149,176, 105,66,69, 122,6,168, 123,147,187, 96,77,90,
+  65,55,107, 89,90,180, 101,100,120, 63,105,104, 93,137,227, 15,86,85,
+  129,102,49, 14,87,86, 55,8,9, 100,47,121, 145,23,22, 88,89,179,
+  6,122,196, 88,95,96, 138,172,136, 215,58,172, 115,48,219, 42,80,81,
+  195,3,51, 43,146,61, 171,175,199, 81,82,38, 53,46,225, 144,163,110,
+  52,65,66, 229,228,117, 34,127,234, 107,108,69, 109,108,151, 48,64,235,
+  62,78,191, 129,209,126, 111,35,143, 117,123,50, 222,65,52, 19,125,141,
+  221,55,65, 3,195,197, 25,7,33, 220,237,44, 70,71,139, 122,193,245,
+  247,130,33, 71,21,162, 170,169,150, 188,174,196, 216,186,92, 2,97,167,
+  141,125,241, 164,167,37, 72,38,12, 38,82,13, 63,68,71, 226,35,111,
+  101,50,205, 206,92,165, 209,198,217, 165,167,97, 220,115,218, 133,112,243,
+  239,238,241, 214,135,169, 190,173,133, 171,208,32,
+  86,87,178, 85,86,179, 84,85,180, 83,84,181, 201,83,182, 137,93,132,
+  76,62,183, 61,76,184, 57,61,185, 212,57,186, 214,212,187, 34,143,156,
+  44,1,4, 64,102,129, 213,138,215, 125,126,217,
+  196,189,221, 220,189,222, 73,84,17, 74,73,185, 80,74,42, 183,80,181,
+  191,78,183, 181,180,89, 243,189,244, 47,217,218, 131,134,138, 224,223,122,
+  110,24,144, 178,179,88, 197,196,223, 111,33,133, 43,91,145, 89,180,183,
+  107,55,193, 55,107,65, 104,68,55, 21,54,103, 54,21,68,
+  54,67,69, 69,67,103, 67,104,109, 54,103,67, 108,9,107,
+  9,55,107, 193,107,55, 8,9,55, 151,108,9, 158,157,173,
+  155,133,190, 249,390,373, 7,163,144, 144,25,110, 33,7,25, 226,31,35,
+  247,161,163, 246,161,160, 30,160,29, 27,29,160, 28,27,159, 158,28,157,
+  244,173,157, 155,154,26, 26,112,155, 190,112,26, 190,155,112, 173,190,133,
+  182,106,83, 106,43,83, 178,88,179, 89,88,180, 182,181,83, 178,179,180,
+  88,87,178, 90,89,96, 77,90,96, 182,83,201, 180,181,89, 17,18,83
+];
+
+// Key landmark indices
+const L = {
+  LEYE_UPPER: [159, 160, 161, 157, 158],
+  LEYE_LOWER: [145, 144, 163, 153, 154],
+  REYE_UPPER: [386, 387, 388, 385, 384],
+  REYE_LOWER: [374, 373, 390, 380, 381],
+  MOUTH_CORNER_L: 61,
+  MOUTH_CORNER_R: 291,
+  MOUTH_UPPER_INNER: [13, 82, 312],
+  MOUTH_LOWER_INNER: [14, 87, 317],
+  MOUTH_UPPER_OUTER: [0, 37, 267],
+  MOUTH_LOWER_OUTER: [17, 84, 314],
+};
+
+// =====================================================
+// Init
+// =====================================================
+function init() {
+  try {
+    const sp = localStorage.getItem(STORAGE_PHOTO);
+    const sl = localStorage.getItem(STORAGE_LANDMARKS);
+    if (sp && sl) {
+      photoImg = new Image();
+      photoImg.onload = () => {
+        landmarks = JSON.parse(sl);
+        deformedLandmarks = landmarks.map(p => ({x:p.x, y:p.y}));
+        triangleIndices = FACEMESH_TRIANGLES;
+        setupCanvas();
+        startRenderLoop();
+        startBlinkLoop();
         document.getElementById('uploadScreen').classList.add('hidden');
-      }
-    } catch (e) { /* storage blocked */ }
-  }
-
-  function savePhoto(dataUrl) {
-    try { localStorage.setItem(STORAGE_KEY, dataUrl); } catch (e) { /* ignore */ }
-  }
-
-  function showUpload() {
-    document.getElementById('uploadScreen').classList.remove('hidden');
-  }
-
-  function compressImage(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const MAX = 800;
-          let { width, height } = img;
-          if (width > height && width > MAX) {
-            height = (height * MAX) / width; width = MAX;
-          } else if (height > MAX) {
-            width = (width * MAX) / height; height = MAX;
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.85));
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function handlePhoto(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    statusEl.textContent = 'Saving photo…';
-    try {
-      const dataUrl = await compressImage(file);
-      character.src = dataUrl;
-      savePhoto(dataUrl);
-      document.getElementById('uploadScreen').classList.add('hidden');
-      statusEl.textContent = '';
-    } catch (err) {
-      statusEl.textContent = 'Could not load that photo. Try another.';
+      photoImg.src = sp;
     }
-  }
+  } catch (e) {}
+}
+function showUpload() { document.getElementById('uploadScreen').classList.remove('hidden'); }
 
-  function playAnim(name) {
-    character.classList.remove('bounce','squish','shake','spin');
-    void character.offsetWidth;
-    character.classList.add(name);
-  }
-
-  character.addEventListener('click', () => {
-    playAnim('bounce');
-    playGiggle();
-    spawnEmoji('⭐', '💫', '✨');
+// =====================================================
+// Photo processing
+// =====================================================
+function compressImage(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => {
+      const i = new Image();
+      i.onload = () => {
+        const MAX = 1024;
+        let { width:w, height:h } = i;
+        if (w > h && w > MAX) { h = h*MAX/w; w = MAX; }
+        else if (h > MAX) { w = w*MAX/h; h = MAX; }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(i, 0, 0, w, h);
+        res(c.toDataURL('image/jpeg', 0.9));
+      };
+      i.onerror = rej;
+      i.src = e.target.result;
+    };
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
+}
 
-  function pet() {
-    playAnim('squish');
-    spawnEmoji('💖','💕','💗');
-    playTone(660, 0.2);
+async function handlePhoto(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+
+  document.getElementById('uploadScreen').classList.add('hidden');
+  document.getElementById('processingScreen').classList.remove('hidden');
+
+  try {
+    const dataUrl = await compressImage(file);
+    const img = await loadImage(dataUrl);
+
+    document.getElementById('processingTitle').textContent = 'Analyzing face…';
+    document.getElementById('processingSub').textContent = 'Finding face landmarks.';
+
+    const detected = await detectFaceMesh(img);
+    if (!detected || detected.length < 468) {
+      document.getElementById('processingScreen').classList.add('hidden');
+      document.getElementById('fallbackScreen').classList.remove('hidden');
+      return;
+    }
+
+    landmarks = detected;
+    photoImg = img;
+
+    try {
+      localStorage.setItem(STORAGE_PHOTO, dataUrl);
+      localStorage.setItem(STORAGE_LANDMARKS, JSON.stringify(landmarks));
+    } catch (e) { console.warn('storage save failed', e); }
+
+    deformedLandmarks = landmarks.map(p => ({ x:p.x, y:p.y }));
+    triangleIndices = FACEMESH_TRIANGLES;
+
+    document.getElementById('processingScreen').classList.add('hidden');
+    setupCanvas();
+    startRenderLoop();
+    startBlinkLoop();
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('processingScreen').classList.add('hidden');
+    document.getElementById('fallbackScreen').classList.remove('hidden');
+  }
+}
+
+function retryUpload() {
+  document.getElementById('fallbackScreen').classList.add('hidden');
+  document.getElementById('uploadScreen').classList.remove('hidden');
+}
+
+function loadImage(src) {
+  return new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i); i.onerror = rej; i.src = src;
+  });
+}
+
+// =====================================================
+// MediaPipe FaceMesh loading & detection
+// =====================================================
+let mpLoadPromise = null;
+function loadMediaPipe() {
+  if (mpLoadPromise) return mpLoadPromise;
+  mpLoadPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('MediaPipe CDN load failed'));
+    document.head.appendChild(s);
+  });
+  return mpLoadPromise;
+}
+
+async function detectFaceMesh(img) {
+  try {
+    await loadMediaPipe();
+  } catch (e) {
+    console.warn('No internet for MediaPipe — using fallback');
+    return null;
+  }
+  return new Promise((resolve) => {
+    try {
+      const faceMesh = new FaceMesh({
+        locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
+      });
+      faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: false,
+        minDetectionConfidence: 0.5
+      });
+      faceMesh.onResults((results) => {
+        if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+          const pts = results.multiFaceLandmarks[0].map(p => ({ x:p.x, y:p.y }));
+          resolve(pts);
+        } else resolve(null);
+      });
+      faceMesh.send({ image: img }).catch(() => resolve(null));
+      setTimeout(() => resolve(null), 20000);
+    } catch (e) {
+      console.warn('FaceMesh init failed', e);
+      resolve(null);
+    }
+  });
+}
+
+// =====================================================
+// Canvas setup + warped rendering
+// =====================================================
+function setupCanvas() {
+  const rect = faceCanvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  faceCanvas.width = rect.width * dpr;
+  faceCanvas.height = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', () => { if (photoImg) setupCanvas(); });
+
+function render() {
+  const rect = faceCanvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+  if (!photoImg) return;
+
+  const imgW = photoImg.width, imgH = photoImg.height;
+  const scale = Math.max(W / imgW, H / imgH);
+  const drawW = imgW * scale;
+  const drawH = imgH * scale;
+  const offsetX = (W - drawW) / 2;
+  const offsetY = (H - drawH) / 2;
+
+  // Draw unwarped base photo — triangles overlay only where face is
+  ctx.drawImage(photoImg, offsetX, offsetY, drawW, drawH);
+
+  if (!landmarks || !triangleIndices || !deformedLandmarks) return;
+
+  // Draw warped triangles for the face region
+  for (let t = 0; t < triangleIndices.length; t += 3) {
+    const i0 = triangleIndices[t], i1 = triangleIndices[t+1], i2 = triangleIndices[t+2];
+    if (i0 >= landmarks.length || i1 >= landmarks.length || i2 >= landmarks.length) continue;
+
+    const s0 = landmarks[i0], s1 = landmarks[i1], s2 = landmarks[i2];
+    const d0 = deformedLandmarks[i0], d1 = deformedLandmarks[i1], d2 = deformedLandmarks[i2];
+
+    drawWarpedTriangle(
+      s0.x * imgW, s0.y * imgH,
+      s1.x * imgW, s1.y * imgH,
+      s2.x * imgW, s2.y * imgH,
+      offsetX + d0.x * drawW, offsetY + d0.y * drawH,
+      offsetX + d1.x * drawW, offsetY + d1.y * drawH,
+      offsetX + d2.x * drawW, offsetY + d2.y * drawH
+    );
+  }
+}
+
+function drawWarpedTriangle(sx0,sy0, sx1,sy1, sx2,sy2, dx0,dy0, dx1,dy1, dx2,dy2) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(dx0, dy0);
+  ctx.lineTo(dx1, dy1);
+  ctx.lineTo(dx2, dy2);
+  ctx.closePath();
+  ctx.clip();
+
+  const denom = (sx1 - sx0) * (sy2 - sy0) - (sx2 - sx0) * (sy1 - sy0);
+  if (Math.abs(denom) < 0.0001) { ctx.restore(); return; }
+  const a = ((dx1 - dx0) * (sy2 - sy0) - (dx2 - dx0) * (sy1 - sy0)) / denom;
+  const c = ((dx2 - dx0) * (sx1 - sx0) - (dx1 - dx0) * (sx2 - sx0)) / denom;
+  const e = dx0 - a * sx0 - c * sy0;
+  const b = ((dy1 - dy0) * (sy2 - sy0) - (dy2 - dy0) * (sy1 - sy0)) / denom;
+  const d = ((dy2 - dy0) * (sx1 - sx0) - (dy1 - dy0) * (sx2 - sx0)) / denom;
+  const f = dy0 - b * sx0 - d * sy0;
+
+  ctx.transform(a, b, c, d, e, f);
+  ctx.drawImage(photoImg, 0, 0);
+  ctx.restore();
+}
+
+// =====================================================
+// Deformation (blink, smile, mouth open)
+// =====================================================
+function computeDeformation() {
+  if (!landmarks) return;
+  const { blink, smile, mouthOpen } = expressionAmt;
+
+  // reset
+  for (let i = 0; i < landmarks.length; i++) {
+    deformedLandmarks[i].x = landmarks[i].x;
+    deformedLandmarks[i].y = landmarks[i].y;
   }
 
-  function tickle() {
-    playAnim('shake');
-    spawnEmoji('😆','🤣','😂');
-    const notes = [700, 900, 800, 1000, 900];
-    notes.forEach((f,i) => setTimeout(() => playTone(f, 0.08), i * 70));
+  // BLINK: move upper lid to midpoint, lower lid to midpoint
+  if (blink > 0.02) {
+    const closeEye = (upperIdxs, lowerIdxs) => {
+      const n = Math.min(upperIdxs.length, lowerIdxs.length);
+      for (let k = 0; k < n; k++) {
+        const up = landmarks[upperIdxs[k]];
+        const lo = landmarks[lowerIdxs[k]];
+        if (!up || !lo) continue;
+        const midY = (up.y + lo.y) / 2;
+        deformedLandmarks[upperIdxs[k]].y = up.y * (1 - blink) + midY * blink;
+        deformedLandmarks[lowerIdxs[k]].y = lo.y * (1 - blink) + midY * blink;
+      }
+    };
+    closeEye(L.LEYE_UPPER, L.LEYE_LOWER);
+    closeEye(L.REYE_UPPER, L.REYE_LOWER);
   }
 
-  function spinMe() {
-    playAnim('spin');
-    spawnEmoji('🌀','⭐','🎉');
-    playSlide(400, 800, 0.5);
-  }
-
-  function dance() {
-    spawnEmoji('🎵','🎶','🎵','💃');
-    let beat = 0;
-    const beats = ['bounce','squish','shake','bounce'];
-    const interval = setInterval(() => {
-      playAnim(beats[beat % beats.length]);
-      playTone([500, 600, 700, 800][beat % 4], 0.1);
-      beat++;
-      if (beat > 7) clearInterval(interval);
-    }, 250);
-  }
-
-  function spawnEmoji(...emojis) {
-    emojis.forEach((emoji, i) => {
-      setTimeout(() => {
-        const el = document.createElement('div');
-        el.className = 'floating-emoji';
-        el.textContent = emoji;
-        const rect = character.getBoundingClientRect();
-        const spread = 100;
-        el.style.left = (rect.left + rect.width/2 - 23 + (Math.random() - 0.5) * spread) + 'px';
-        el.style.top = (rect.top + rect.height/2 - 23) + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 1600);
-      }, i * 120);
+  // SMILE: pull corners outward + up, raise cheeks
+  if (smile > 0.02) {
+    const pull = (idx, dx, dy) => {
+      const p = landmarks[idx];
+      if (!p) return;
+      deformedLandmarks[idx].x = p.x + dx;
+      deformedLandmarks[idx].y = p.y + dy;
+    };
+    pull(L.MOUTH_CORNER_L, -smile * 0.035, -smile * 0.015);
+    pull(L.MOUTH_CORNER_R,  smile * 0.035, -smile * 0.015);
+    [50, 101, 118, 280, 330, 347].forEach(idx => {
+      const p = landmarks[idx];
+      if (!p) return;
+      deformedLandmarks[idx].y = p.y - smile * 0.012;
     });
   }
 
-  function getCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    return audioCtx;
+  // MOUTH OPEN: upper lip up, lower lip down, chin drops
+  if (mouthOpen > 0.02) {
+    L.MOUTH_UPPER_INNER.forEach(idx => {
+      const p = landmarks[idx]; if (!p) return;
+      deformedLandmarks[idx].y = p.y - mouthOpen * 0.015;
+    });
+    L.MOUTH_LOWER_INNER.forEach(idx => {
+      const p = landmarks[idx]; if (!p) return;
+      deformedLandmarks[idx].y = p.y + mouthOpen * 0.025;
+    });
+    L.MOUTH_UPPER_OUTER.forEach(idx => {
+      const p = landmarks[idx]; if (!p) return;
+      deformedLandmarks[idx].y = p.y - mouthOpen * 0.008;
+    });
+    L.MOUTH_LOWER_OUTER.forEach(idx => {
+      const p = landmarks[idx]; if (!p) return;
+      deformedLandmarks[idx].y = p.y + mouthOpen * 0.018;
+    });
+    [175, 152, 148, 377].forEach(idx => {
+      const p = landmarks[idx]; if (!p) return;
+      deformedLandmarks[idx].y = p.y + mouthOpen * 0.015;
+    });
   }
+}
 
-  function playTone(freq, duration) {
-    const ctx = getCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.value = freq;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
-  }
+function startRenderLoop() {
+  if (animRaf) cancelAnimationFrame(animRaf);
+  const frame = () => {
+    computeDeformation();
+    render();
+    animRaf = requestAnimationFrame(frame);
+  };
+  frame();
+}
 
-  function playSlide(startFreq, endFreq, duration) {
-    const ctx = getCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + duration);
-    osc.type = 'triangle';
-    gain.gain.setValueAtTime(0.25, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
-  }
-
-  function playGiggle() {
-    const notes = [800, 1000, 900, 1100, 950];
-    notes.forEach((f,i) => setTimeout(() => playTone(f, 0.1), i * 75));
-  }
-
-  async function toggleRecord() {
-    const btn = document.getElementById('recordBtn');
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          stream.getTracks().forEach(t => t.stop());
-          const blob = new Blob(audioChunks, { type: 'audio/webm' });
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          audio.playbackRate = 1.6;
-          audio.preservesPitch = false;
-          audio.mozPreservesPitch = false;
-          audio.webkitPreservesPitch = false;
-
-          character.classList.add('talking-glow');
-          statusEl.textContent = '🎵 Playing back...';
-          audio.play().catch(err => {
-            statusEl.textContent = 'Playback failed: ' + err.message;
-          });
-          audio.onended = () => {
-            character.classList.remove('talking-glow');
-            statusEl.textContent = '';
-            URL.revokeObjectURL(url);
-          };
-        };
-        mediaRecorder.start();
-        isRecording = true;
-        btn.classList.add('recording');
-        btn.textContent = '⏹';
-        statusEl.textContent = '🔴 Recording... (tap to stop)';
-        setTimeout(() => { if (isRecording) toggleRecord(); }, 5000);
-      } catch (err) {
-        statusEl.textContent = 'Mic permission needed.';
-        alert('Please allow microphone access.\n\n' + err.message);
-      }
-    } else {
-      mediaRecorder.stop();
-      isRecording = false;
-      btn.classList.remove('recording');
-      btn.textContent = '🎤';
-      statusEl.textContent = '';
+// =====================================================
+// Blink / smile animation drivers
+// =====================================================
+function startBlinkLoop() { stopBlinkLoop(); scheduleNextBlink(); }
+function stopBlinkLoop() { if (blinkTimer) { clearTimeout(blinkTimer); blinkTimer = null; } }
+function scheduleNextBlink() {
+  const delay = 2500 + Math.random() * 3500;
+  blinkTimer = setTimeout(() => { doBlink().then(scheduleNextBlink); }, delay);
+}
+function doBlink(duration = 280) {
+  return new Promise(resolve => {
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      expressionAmt.blink = t < 0.5 ? (t * 2) : (1 - (t - 0.5) * 2);
+      if (t < 1) requestAnimationFrame(step);
+      else { expressionAmt.blink = 0; resolve(); }
     }
+    requestAnimationFrame(step);
+  });
+}
+function smileFor(duration = 800, intensity = 1.0) {
+  const start = performance.now();
+  return new Promise(resolve => {
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const curve = t < 0.5 ? (2*t*t) : (1 - 2*(1-t)*(1-t));
+      expressionAmt.smile = curve * (1 - Math.abs(t - 0.5) * 0.4) * intensity;
+      if (t < 1) requestAnimationFrame(step);
+      else { expressionAmt.smile = 0; resolve(); }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+// =====================================================
+// Interactions
+// =====================================================
+function playAnim(name) {
+  characterWrap.classList.remove('bounce','squish','shake','jump','sleepy');
+  void characterWrap.offsetWidth;
+  characterWrap.classList.add(name);
+}
+
+faceCanvas.addEventListener('click', () => {
+  playAnim('bounce');
+  smileFor(800, 1);
+  playGiggle();
+  spawnEmoji('⭐','💫','✨');
+});
+
+function pet() {
+  playAnim('squish'); smileFor(1000, 0.8);
+  spawnEmoji('💖','💕','💗'); playTone(660, 0.2);
+}
+function tickle() {
+  playAnim('shake'); smileFor(1200, 1);
+  spawnEmoji('😆','🤣','😂');
+  [700,900,800,1000,900].forEach((f,i)=>setTimeout(()=>playTone(f,0.08), i*70));
+}
+function happyJump() {
+  playAnim('jump'); smileFor(900, 1);
+  spawnEmoji('😄','🎉','🌟','✨');
+  playSlide(400, 1000, 0.4);
+}
+function dance() {
+  spawnEmoji('🎵','🎶','🎵','💃');
+  smileFor(2500, 0.7);
+  let beat = 0;
+  const beats = ['bounce','squish','shake','jump'];
+  const interval = setInterval(() => {
+    playAnim(beats[beat % beats.length]);
+    playTone([500,600,700,800][beat % 4], 0.1);
+    beat++;
+    if (beat > 7) clearInterval(interval);
+  }, 280);
+}
+function sleepy() {
+  playAnim('sleepy');
+  spawnEmoji('😴','💤','💤');
+  playSlide(500, 200, 1.2);
+  const start = performance.now(); const dur = 2200;
+  function step(now) {
+    const t = Math.min(1, (now - start)/dur);
+    let v;
+    if (t < 0.3) v = t/0.3;
+    else if (t < 0.7) v = 1;
+    else v = 1 - (t-0.7)/0.3;
+    expressionAmt.blink = Math.max(0, Math.min(1, v));
+    if (t < 1) requestAnimationFrame(step);
+    else expressionAmt.blink = 0;
   }
+  requestAnimationFrame(step);
+}
 
-  loadPhoto();
+function spawnEmoji(...emojis) {
+  emojis.forEach((e, i) => {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'floating-emoji';
+      el.textContent = e;
+      const rect = faceCanvas.getBoundingClientRect();
+      el.style.left = (rect.left + rect.width/2 - 22 + (Math.random()-0.5)*120) + 'px';
+      el.style.top = (rect.top + rect.height/2 - 22) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1800);
+    }, i * 130);
+  });
+}
+
+// =====================================================
+// Audio
+// =====================================================
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function playTone(f, dur) {
+  const c = getCtx(); const osc = c.createOscillator(); const g = c.createGain();
+  osc.frequency.value = f; osc.type = 'sine';
+  g.gain.setValueAtTime(0.25, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+  osc.connect(g).connect(c.destination);
+  osc.start(); osc.stop(c.currentTime + dur);
+}
+function playSlide(a, b, dur) {
+  const c = getCtx(); const osc = c.createOscillator(); const g = c.createGain();
+  osc.frequency.setValueAtTime(a, c.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(b, c.currentTime + dur);
+  osc.type = 'triangle';
+  g.gain.setValueAtTime(0.25, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+  osc.connect(g).connect(c.destination);
+  osc.start(); osc.stop(c.currentTime + dur);
+}
+function playGiggle() {
+  [800,1000,900,1100,950].forEach((f,i)=>setTimeout(()=>playTone(f,0.1), i*75));
+}
+
+// =====================================================
+// Voice record + lip sync driving mouth deformation
+// =====================================================
+async function toggleRecord() {
+  const btn = document.getElementById('recordBtn');
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(t => t.stop());
+        playRecordingWithLipSync(new Blob(audioChunks, { type:'audio/webm' }));
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      btn.classList.add('recording');
+      btn.textContent = '⏹';
+      statusEl.textContent = '🔴 Recording… (tap to stop)';
+      setTimeout(() => { if (isRecording) toggleRecord(); }, 5000);
+    } catch (err) {
+      statusEl.textContent = 'Mic permission needed.';
+      alert('Please allow microphone access.\n\n' + err.message);
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎤';
+    statusEl.textContent = '';
+  }
+}
+
+async function playRecordingWithLipSync(blob) {
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
+  audio.playbackRate = 1.6;
+  audio.preservesPitch = false;
+  audio.mozPreservesPitch = false;
+  audio.webkitPreservesPitch = false;
+  statusEl.textContent = '🎵 Playing back…';
+
+  try {
+    const c = getCtx();
+    const source = c.createMediaElementSource(audio);
+    const analyser = c.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+    analyser.connect(c.destination);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    const tick = () => {
+      analyser.getByteFrequencyData(data);
+      let sum = 0;
+      for (let i = 2; i < 30; i++) sum += data[i];
+      const avg = sum / 28 / 255;
+      const target = Math.min(1, avg * 2.8);
+      expressionAmt.mouthOpen = expressionAmt.mouthOpen * 0.55 + target * 0.45;
+      lipSyncRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (e) { console.warn('lip sync setup failed', e); }
+
+  audio.play().catch(() => { statusEl.textContent = 'Playback error.'; });
+  audio.onended = () => {
+    if (lipSyncRaf) { cancelAnimationFrame(lipSyncRaf); lipSyncRaf = null; }
+    expressionAmt.mouthOpen = 0;
+    statusEl.textContent = '';
+    URL.revokeObjectURL(url);
+  };
+}
+
+init();
 </script>
-
 </body>
 </html>
