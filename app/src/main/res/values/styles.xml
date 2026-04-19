@@ -1,5 +1,5 @@
 <resources>
-    <style name="Theme.WebViewTemplate" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.WebViewTemplate" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">#ff9a9e</item>
         <item name="colorPrimaryVariant">#d63384</item>
         <item name="colorOnPrimary">#FFFFFF</item>
